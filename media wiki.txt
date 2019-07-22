@@ -1,0 +1,68 @@
+Inorder to install command line to access azure
+az login
+az account set --subscription "SUBSCRIPTION-NAME"
+az group create --name aks-resource-group --location eastus
+az aks create --name aks-cluster --resource-group aks-resource-group --node-count 3 --generate-ssh-keys
+
+
+#######################in order to install minicude######################################################################################
+
+curl -Lo minikube https://storage.googleapis.com/minikube/releases/vX.Y.Z/minikube-OS_DISTRIBUTION-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
+#####Create A Kubernetes Cluster################
+minikube start
+##########Install The Kubectl Command-Line Tool###############
+curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/OS_DISTRIBUTION/amd64/kubectl
+chmod +x ./kubectl
+sudo mv ./kubectl /usr/local/bin/kubectl
+############# to get the cluster info###########
+kubectl cluster-info ---- to get cluster info
+kubectl get nodes - to get cluster running
+
+kubectl describe node	
+We need helm charts inorder to  install the media wiki
+
+curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get > get_helm.sh
+chmod 700 get_helm.sh
+./get_helm.sh
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  annotations:
+    rbac.authorization.kubernetes.io/autoupdate: "true"
+  labels:
+    kubernetes.io/bootstrapping: rbac-defaults
+  name: cluster-admin
+rules:
+- apiGroups:
+  - '*'
+  resources:
+  - '*'
+  verbs:
+  - '*'
+- nonResourceURLs:
+  - '*'
+  verbs:
+  - '*'
+To create the ClusterRole, run this command:
+
+kubectl create -f clusterrole.yaml
+To create a ServiceAccount and associate it with the ClusterRole, use a ClusterRoleBinding, as below:
+
+kubectl create serviceaccount -n kube-system tiller
+kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+Initialize Helm as shown below:
+
+helm init --service-account tiller
+If you have previously initialized Helm, execute the following command to upgrade it:
+
+helm init --upgrade --service-account tiller
+Check if Tiller is correctly installed by checking the output of kubectl get pods as shown below:
+
+kubectl --namespace kube-system get pods | grep tiller
+  tiller-deploy-2885612843-xrj5m   1/1       Running   0   4d
+  
+  helm init ---- to check the heml installed
+  
+  ################ to install media wiki#########################
+  helm install stable/mediawiki
+ 
